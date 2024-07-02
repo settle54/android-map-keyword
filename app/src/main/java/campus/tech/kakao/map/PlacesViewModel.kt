@@ -1,14 +1,15 @@
 package campus.tech.kakao.map
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
-class PlacesViewModel(private val repository: MapRepository) : ViewModel() {
+class PlacesViewModel(context: Context) : ViewModel() {
+    private val repository: MapRepository = MapRepository(context)
 
     private val _places: MutableLiveData<List<Place>> by lazy {
         MutableLiveData<List<Place>>()
@@ -18,8 +19,6 @@ class PlacesViewModel(private val repository: MapRepository) : ViewModel() {
     init {
         loadPlaces()
     }
-
-    private val viewModelScope = MainScope()
 
     private fun loadPlaces() {
         viewModelScope.launch(Dispatchers.IO) {
