@@ -10,10 +10,10 @@ class PlaceDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         private const val DATABASE_NAME = "PlaceTable.db"
         private const val DATABASE_VERSION = 1
 
-        private const val TABLE_NAME = "PlaceTable"
-        private const val NAME = "NAME"
-        private const val ADDRESS = "ADDRESS"
-        private const val CATEGORY = "CATEGORY"
+        const val TABLE_NAME = "PlaceTable"
+        const val NAME = "NAME"
+        const val ADDRESS = "ADDRESS"
+        const val CATEGORY = "CATEGORY"
 
         private const val CREATE_TABLE = "CREATE TABLE IF NOT EXISTS $TABLE_NAME (" +
                 "$NAME text, $ADDRESS text, $CATEGORY text)"
