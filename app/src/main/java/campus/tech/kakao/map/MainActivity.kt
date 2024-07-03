@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.activity.viewModels
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -30,7 +29,6 @@ class MainActivity : AppCompatActivity() {
         viewModelFactory = PlacesViewModelFactory(repository)
         viewModel = ViewModelProvider(this, viewModelFactory).get(PlacesViewModel::class.java)
 
-        binding.mainViewModel = viewModel
         adapter = PlacesAdapter { position: Int ->
             Toast.makeText(this, "$position", Toast.LENGTH_SHORT).show()
         }
