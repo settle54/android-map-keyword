@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class PlacesViewModel(context: Context) : ViewModel() {
-    private val repository: MapRepository = MapRepository(context)
+class PlacesViewModel(repository: MapRepository) : ViewModel() {
+    private val repository = repository
 
     private val _places: MutableLiveData<List<Place>> by lazy {
         MutableLiveData<List<Place>>()
@@ -17,25 +17,43 @@ class PlacesViewModel(context: Context) : ViewModel() {
     val places: LiveData<List<Place>> = _places
 
     init {
-        loadPlaces()
+        _places.postValue(emptyList())
     }
 
     private fun loadPlaces() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch() {
             val placesFromRepo = repository.getAllPlaces()
             _places.postValue(placesFromRepo)
         }
     }
 
     fun insertPlace(name: String, address: String, category: String = "") {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch() {
             repository.insertPlace(name, address, category)
+            loadPlaces()
         }
     }
 
     fun deletePlace(name: String, address: String, category: String = "") {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch() {
             repository.deletePlace(name, address, category)
+            loadPlaces()
+        }
+    }
+
+    fun getAllPlaces(): List<Place> {
+        return repository.getAllPlaces()
+    }
+
+    fun filterPlace(search: String) {
+        viewModelScope.launch() {
+            val allPlaces = repository.getAllPlaces()
+            val filtered = if (search.isEmpty()) {
+                emptyList()
+            } else {
+                allPlaces.filter { it.name.contains(search, ignoreCase = true) }
+            }
+            _places.postValue(filtered)
         }
     }
 }

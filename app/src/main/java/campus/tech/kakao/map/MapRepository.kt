@@ -1,7 +1,6 @@
 package campus.tech.kakao.map
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 
 class MapRepository(context: Context) {
     private var localDB: PlacesDBHelper
