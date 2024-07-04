@@ -3,13 +3,17 @@ package campus.tech.kakao.map
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import campus.tech.kakao.map.model.RecentSearchWord
 import campus.tech.kakao.map.databinding.ActivityMainBinding
+import campus.tech.kakao.map.viewModel.MapRepository
+import campus.tech.kakao.map.viewModel.PlacesViewModel
+import campus.tech.kakao.map.viewModel.PlacesViewModelFactory
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 
@@ -23,8 +27,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private lateinit var prefEditor: SharedPreferences.Editor
     private var stringPrefs: String? = null
-    private var searchHistoryList = ArrayList<SearchHistory>()
+    private var searchHistoryList = ArrayList<RecentSearchWord>()
     private lateinit var searchHistoryAdapter: SearchHistoryAdapter
+    private var isInserting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,18 +60,16 @@ class MainActivity : AppCompatActivity() {
     private fun setUpSearchHistoryAdapter() {
         searchHistoryAdapter = SearchHistoryAdapter(searchHistoryList) { position: Int ->
             delSearch(position)
-            savePrefs()
-            searchHistoryAdapter.notifyDataSetChanged()
             updateSearchHistoryVisibility()
         }
         binding.searchHistory.adapter = searchHistoryAdapter
+//        binding.searchHistory.itemAnimator = DefaultItemAnimator()
     }
 
     private fun setUpPlacesAdapter() {
         placesAdapter = PlacesAdapter { position: Int ->
             val itemName = placesAdapter.getItemName(position)
-            insertSearch(itemName)
-            searchHistoryAdapter.notifyDataSetChanged()
+            insertSearch(position, itemName)
             binding.searchHistory.visibility = View.VISIBLE
         }
         binding.placesRView.adapter = placesAdapter
@@ -89,17 +92,27 @@ class MainActivity : AppCompatActivity() {
         return searchHistoryList.indexOfFirst { it.word == itemName }
     }
 
-    private fun insertSearch(itemName: String) {
-        val foundIdx = searchHistoryContains(itemName)
-        if (foundIdx != -1) {
-            delSearch(foundIdx)
-        }
-        searchHistoryList.add(SearchHistory(itemName))
-        savePrefs()
+    private fun moveSearchToLast(foundIdx: Int, itemName: String) {
+        searchHistoryList.removeAt(foundIdx)
+        searchHistoryList.add(RecentSearchWord(itemName))
+        searchHistoryAdapter.notifyItemMoved(foundIdx, searchHistoryList.size-1)
+    }
+
+    private fun insertSearch(position: Int, itemName: String) {
+            val foundIdx = searchHistoryContains(itemName)
+            if (foundIdx != -1) {
+                moveSearchToLast(foundIdx, itemName)
+            } else {
+                searchHistoryList.add(RecentSearchWord(itemName))
+                searchHistoryAdapter.notifyItemInserted(searchHistoryList.size)
+            }
+            savePrefs()
     }
 
     private fun delSearch(position: Int) {
         searchHistoryList.removeAt(position)
+        searchHistoryAdapter.notifyItemRemoved(position)
+        savePrefs()
     }
 
     private fun setPrefs() {
@@ -109,14 +122,14 @@ class MainActivity : AppCompatActivity() {
 
         if (stringPrefs != null && stringPrefs != "[]") {
             searchHistoryList = GsonBuilder().create().fromJson(
-                stringPrefs, object: TypeToken<ArrayList<SearchHistory>>(){}.type
+                stringPrefs, object: TypeToken<ArrayList<RecentSearchWord>>(){}.type
             )
         }
     }
 
     private fun savePrefs() {
         stringPrefs = GsonBuilder().create().toJson(
-            searchHistoryList, object: TypeToken<ArrayList<SearchHistory>>(){}.type
+            searchHistoryList, object: TypeToken<ArrayList<RecentSearchWord>>(){}.type
         )
         prefEditor.putString("search_history", stringPrefs)
         prefEditor.apply()

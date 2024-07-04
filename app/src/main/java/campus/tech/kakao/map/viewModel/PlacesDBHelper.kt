@@ -1,11 +1,11 @@
-package campus.tech.kakao.map
+package campus.tech.kakao.map.viewModel
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
+import campus.tech.kakao.map.model.Place
 
 class PlacesDBHelper(context: Context):
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -57,14 +57,14 @@ class PlacesDBHelper(context: Context):
             put(ADDRESS, place.address)
             put(CATEGORY, place.category)
         }
-        db.insert(Companion.TABLE_NAME, null, values)
+        db.insert(TABLE_NAME, null, values)
         db.close()
     }
 
     @SuppressLint("Range")
     fun getAllPlaces(): List<Place> {
         val db = this.readableDatabase
-        val query = "SELECT * FROM ${TABLE_NAME}"
+        val query = "SELECT * FROM $TABLE_NAME"
         val cursor = db.rawQuery(query, null)
         val places = mutableListOf<Place>()
         if (cursor.moveToFirst()) {

@@ -3,11 +3,13 @@ package campus.tech.kakao.map
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import campus.tech.kakao.map.model.RecentSearchWord
 import campus.tech.kakao.map.databinding.SearchHistoryModuleBinding
 
 class SearchHistoryAdapter(
-    private var searchHistoryList: List<SearchHistory>,
-    private val onClick: (Int) -> Unit
+    private var recentSearchWordList: List<RecentSearchWord>,
+    private val onDeleteClick: (Int) -> Unit,
+    private val onTextClick: (Int) -> Unit
 ) : RecyclerView.Adapter<SearchHistoryAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -16,21 +18,24 @@ class SearchHistoryAdapter(
     }
 
     override fun getItemCount(): Int {
-        return searchHistoryList.size
+        return recentSearchWordList.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(searchHistoryList[position])
+        holder.bind(recentSearchWordList[position])
     }
 
     inner class ViewHolder(private val binding: SearchHistoryModuleBinding) :
         RecyclerView.ViewHolder(binding.root) {
         init {
             binding.deleteHistory.setOnClickListener {
-                onClick(bindingAdapterPosition)
+                onDeleteClick(bindingAdapterPosition)
+            }
+            binding.seachRecord.setOnClickListener {
+                onTextClick(bindingAdapterPosition)
             }
         }
-        fun bind(sh : SearchHistory) {
+        fun bind(sh : RecentSearchWord) {
             binding.data = sh
         }
     }

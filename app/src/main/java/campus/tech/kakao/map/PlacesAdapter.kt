@@ -3,6 +3,7 @@ package campus.tech.kakao.map
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import campus.tech.kakao.map.model.Place
 import campus.tech.kakao.map.databinding.PlaceModuleBinding
 
 class PlacesAdapter(

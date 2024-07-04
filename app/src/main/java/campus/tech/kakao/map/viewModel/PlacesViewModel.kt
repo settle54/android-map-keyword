@@ -1,11 +1,10 @@
-package campus.tech.kakao.map
+package campus.tech.kakao.map.viewModel
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
+import campus.tech.kakao.map.model.Place
 import kotlinx.coroutines.launch
 
 class PlacesViewModel(private val repository: MapRepository) : ViewModel() {

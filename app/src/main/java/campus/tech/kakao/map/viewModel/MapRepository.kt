@@ -1,6 +1,8 @@
-package campus.tech.kakao.map
+package campus.tech.kakao.map.viewModel
 
 import android.content.Context
+import campus.tech.kakao.map.model.Place
+import campus.tech.kakao.map.viewModel.PlacesDBHelper
 
 class MapRepository(context: Context) {
     private var localDB: PlacesDBHelper

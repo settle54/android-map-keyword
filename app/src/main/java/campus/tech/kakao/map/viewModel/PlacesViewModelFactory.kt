@@ -1,8 +1,7 @@
-package campus.tech.kakao.map
+package campus.tech.kakao.map.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.CreationExtras
 
 class PlacesViewModelFactory(private val repository: MapRepository): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
