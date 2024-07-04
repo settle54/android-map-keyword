@@ -7,7 +7,7 @@ import campus.tech.kakao.map.model.RecentSearchWord
 import campus.tech.kakao.map.databinding.SearchHistoryModuleBinding
 
 class SearchHistoryAdapter(
-    private var recentSearchWordList: List<RecentSearchWord>,
+    private var searchHistory: List<RecentSearchWord>,
     private val onDeleteClick: (Int) -> Unit,
     private val onTextClick: (Int) -> Unit
 ) : RecyclerView.Adapter<SearchHistoryAdapter.ViewHolder>() {
@@ -18,11 +18,15 @@ class SearchHistoryAdapter(
     }
 
     override fun getItemCount(): Int {
-        return recentSearchWordList.size
+        return searchHistory.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(recentSearchWordList[position])
+        holder.bind(searchHistory[position])
+    }
+
+    fun getItemName(position: Int): String {
+        return searchHistory[position].word
     }
 
     inner class ViewHolder(private val binding: SearchHistoryModuleBinding) :

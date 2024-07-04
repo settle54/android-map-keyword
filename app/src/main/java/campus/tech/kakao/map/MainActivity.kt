@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         setUpViewModelObservers()
 
-        binding.searchInput.addTextChangedListener {text ->
+        binding.searchInput.addTextChangedListener { text ->
             viewModel.filterPlace(text.toString())
         }
 
@@ -58,12 +58,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpSearchHistoryAdapter() {
-        searchHistoryAdapter = SearchHistoryAdapter(searchHistoryList) { position: Int ->
-            delSearch(position)
-            updateSearchHistoryVisibility()
-        }
+        searchHistoryAdapter = SearchHistoryAdapter(
+            searchHistoryList,
+            { position: Int ->
+                delSearch(position)
+                updateSearchHistoryVisibility()
+            },
+            { position: Int ->
+                val itemName = searchHistoryAdapter.getItemName(position)
+                binding.searchInput.setText(itemName)
+            })
         binding.searchHistory.adapter = searchHistoryAdapter
-//        binding.searchHistory.itemAnimator = DefaultItemAnimator()
     }
 
     private fun setUpPlacesAdapter() {
@@ -80,33 +85,35 @@ class MainActivity : AppCompatActivity() {
         viewModel.places.observe(this, Observer { places ->
             placesAdapter.updateList(places)
             placesAdapter.notifyDataSetChanged()
-            binding.textView.visibility = if (placesAdapter.itemCount <= 0) View.VISIBLE else View.GONE
+            binding.textView.visibility =
+                if (placesAdapter.itemCount <= 0) View.VISIBLE else View.GONE
         })
     }
 
     private fun updateSearchHistoryVisibility() {
-        binding.searchHistory.visibility = if (searchHistoryList.isEmpty()) View.GONE else View.VISIBLE
+        binding.searchHistory.visibility =
+            if (searchHistoryList.isEmpty()) View.GONE else View.VISIBLE
     }
 
-    private fun searchHistoryContains(itemName: String): Int{
+    private fun searchHistoryContains(itemName: String): Int {
         return searchHistoryList.indexOfFirst { it.word == itemName }
     }
 
     private fun moveSearchToLast(foundIdx: Int, itemName: String) {
         searchHistoryList.removeAt(foundIdx)
         searchHistoryList.add(RecentSearchWord(itemName))
-        searchHistoryAdapter.notifyItemMoved(foundIdx, searchHistoryList.size-1)
+        searchHistoryAdapter.notifyItemMoved(foundIdx, searchHistoryList.size - 1)
     }
 
     private fun insertSearch(position: Int, itemName: String) {
-            val foundIdx = searchHistoryContains(itemName)
-            if (foundIdx != -1) {
-                moveSearchToLast(foundIdx, itemName)
-            } else {
-                searchHistoryList.add(RecentSearchWord(itemName))
-                searchHistoryAdapter.notifyItemInserted(searchHistoryList.size)
-            }
-            savePrefs()
+        val foundIdx = searchHistoryContains(itemName)
+        if (foundIdx != -1) {
+            moveSearchToLast(foundIdx, itemName)
+        } else {
+            searchHistoryList.add(RecentSearchWord(itemName))
+            searchHistoryAdapter.notifyItemInserted(searchHistoryList.size)
+        }
+        savePrefs()
     }
 
     private fun delSearch(position: Int) {
@@ -122,14 +129,14 @@ class MainActivity : AppCompatActivity() {
 
         if (stringPrefs != null && stringPrefs != "[]") {
             searchHistoryList = GsonBuilder().create().fromJson(
-                stringPrefs, object: TypeToken<ArrayList<RecentSearchWord>>(){}.type
+                stringPrefs, object : TypeToken<ArrayList<RecentSearchWord>>() {}.type
             )
         }
     }
 
     private fun savePrefs() {
         stringPrefs = GsonBuilder().create().toJson(
-            searchHistoryList, object: TypeToken<ArrayList<RecentSearchWord>>(){}.type
+            searchHistoryList, object : TypeToken<ArrayList<RecentSearchWord>>() {}.type
         )
         prefEditor.putString("search_history", stringPrefs)
         prefEditor.apply()
