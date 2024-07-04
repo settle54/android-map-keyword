@@ -3,16 +3,16 @@ package campus.tech.kakao.map
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import campus.tech.kakao.map.databinding.PlacemoduleBinding
+import campus.tech.kakao.map.databinding.PlaceModuleBinding
 
 class PlacesAdapter(
     private val onClick: (Int) -> Unit
 ) : RecyclerView.Adapter<PlacesAdapter.ViewHolder>() {
 
-    private var localList: List<Place> = listOf()
+    private var localList: List<Place> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = PlacemoduleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = PlaceModuleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
@@ -26,10 +26,13 @@ class PlacesAdapter(
 
     fun updateList(newList: List<Place>) {
         localList = newList
-        notifyDataSetChanged()
     }
 
-    inner class ViewHolder(private val binding: PlacemoduleBinding): RecyclerView.ViewHolder(binding.root) {
+    fun getItemName(position: Int): String {
+        return localList[position].name
+    }
+
+    inner class ViewHolder(private val binding: PlaceModuleBinding): RecyclerView.ViewHolder(binding.root) {
 
         init {
             binding.root.setOnClickListener {

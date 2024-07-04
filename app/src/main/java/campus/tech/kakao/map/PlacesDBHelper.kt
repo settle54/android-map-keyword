@@ -7,14 +7,14 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 
-class PlacesDBHelper(context: Context) :
+class PlacesDBHelper(context: Context):
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
-        private const val DATABASE_NAME = "PlaceTable.db"
+        private const val DATABASE_NAME = "places.db"
         private const val DATABASE_VERSION = 1
 
-        const val TABLE_NAME = "PlaceTable"
+        const val TABLE_NAME = "places_table"
         const val NAME = "NAME"
         const val ADDRESS = "ADDRESS"
         const val CATEGORY = "CATEGORY"

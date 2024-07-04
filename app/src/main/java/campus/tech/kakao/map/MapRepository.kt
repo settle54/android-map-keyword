@@ -7,7 +7,7 @@ class MapRepository(context: Context) {
 
     init {
         localDB = PlacesDBHelper(context)
-        val dbFile = context.getDatabasePath("PlaceTable.db")
+        val dbFile = context.getDatabasePath("${PlacesDBHelper.TABLE_NAME}")
         if (!dbFile.exists())
             insertInitialData()
     }

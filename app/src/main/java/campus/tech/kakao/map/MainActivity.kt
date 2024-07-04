@@ -1,10 +1,8 @@
 package campus.tech.kakao.map
 
+import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -12,40 +10,115 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import campus.tech.kakao.map.databinding.ActivityMainBinding
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 
 class MainActivity : AppCompatActivity() {
     private lateinit var repository: MapRepository
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModelFactory: PlacesViewModelFactory
     private lateinit var viewModel: PlacesViewModel
-    private lateinit var adapter: PlacesAdapter
+    private lateinit var placesAdapter: PlacesAdapter
+
+    private lateinit var prefs: SharedPreferences
+    private lateinit var prefEditor: SharedPreferences.Editor
+    private var stringPrefs: String? = null
+    private var searchHistoryList = ArrayList<SearchHistory>()
+    private lateinit var searchHistoryAdapter: SearchHistoryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setPrefs()
+        setUpSearchHistoryAdapter()
+        setUpPlacesAdapter()
+
         repository = MapRepository(this)
         viewModelFactory = PlacesViewModelFactory(repository)
         viewModel = ViewModelProvider(this, viewModelFactory).get(PlacesViewModel::class.java)
 
-        adapter = PlacesAdapter { position: Int ->
-            Toast.makeText(this, "$position", Toast.LENGTH_SHORT).show()
-        }
-        binding.placesRView.adapter = adapter
-        binding.placesRView.layoutManager = LinearLayoutManager(this)
-
-        viewModel.places.observe(this, Observer { places ->
-            adapter.updateList(places)
-            if (adapter.itemCount <= 0) {
-                binding.textView.visibility =  View.VISIBLE
-            } else {
-                binding.textView.visibility = View.GONE
-            }
-        })
+        setUpViewModelObservers()
 
         binding.searchInput.addTextChangedListener {text ->
             viewModel.filterPlace(text.toString())
         }
+
+        binding.deleteInput.setOnClickListener {
+            binding.searchInput.text.clear()
+        }
+
+        updateSearchHistoryVisibility()
+    }
+
+    private fun setUpSearchHistoryAdapter() {
+        searchHistoryAdapter = SearchHistoryAdapter(searchHistoryList) { position: Int ->
+            delSearch(position)
+            savePrefs()
+            searchHistoryAdapter.notifyDataSetChanged()
+            updateSearchHistoryVisibility()
+        }
+        binding.searchHistory.adapter = searchHistoryAdapter
+    }
+
+    private fun setUpPlacesAdapter() {
+        placesAdapter = PlacesAdapter { position: Int ->
+            val itemName = placesAdapter.getItemName(position)
+            insertSearch(itemName)
+            searchHistoryAdapter.notifyDataSetChanged()
+            binding.searchHistory.visibility = View.VISIBLE
+        }
+        binding.placesRView.adapter = placesAdapter
+        binding.placesRView.layoutManager = LinearLayoutManager(this)
+    }
+
+    private fun setUpViewModelObservers() {
+        viewModel.places.observe(this, Observer { places ->
+            placesAdapter.updateList(places)
+            placesAdapter.notifyDataSetChanged()
+            binding.textView.visibility = if (placesAdapter.itemCount <= 0) View.VISIBLE else View.GONE
+        })
+    }
+
+    private fun updateSearchHistoryVisibility() {
+        binding.searchHistory.visibility = if (searchHistoryList.isEmpty()) View.GONE else View.VISIBLE
+    }
+
+    private fun searchHistoryContains(itemName: String): Int{
+        return searchHistoryList.indexOfFirst { it.word == itemName }
+    }
+
+    private fun insertSearch(itemName: String) {
+        val foundIdx = searchHistoryContains(itemName)
+        if (foundIdx != -1) {
+            delSearch(foundIdx)
+        }
+        searchHistoryList.add(SearchHistory(itemName))
+        savePrefs()
+    }
+
+    private fun delSearch(position: Int) {
+        searchHistoryList.removeAt(position)
+    }
+
+    private fun setPrefs() {
+        prefs = getSharedPreferences("app_data", MODE_PRIVATE)
+        prefEditor = prefs.edit()
+        stringPrefs = prefs.getString("search_history", null)
+
+        if (stringPrefs != null && stringPrefs != "[]") {
+            searchHistoryList = GsonBuilder().create().fromJson(
+                stringPrefs, object: TypeToken<ArrayList<SearchHistory>>(){}.type
+            )
+        }
+    }
+
+    private fun savePrefs() {
+        stringPrefs = GsonBuilder().create().toJson(
+            searchHistoryList, object: TypeToken<ArrayList<SearchHistory>>(){}.type
+        )
+        prefEditor.putString("search_history", stringPrefs)
+        prefEditor.apply()
     }
 }

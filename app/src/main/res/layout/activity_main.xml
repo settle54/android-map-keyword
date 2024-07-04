@@ -61,16 +61,16 @@
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/searchBar"
-        tools:listitem="@layout/searchrecord" />
+        tools:listitem="@layout/search_history_module" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/placesRView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchHistory"
-        tools:listitem="@layout/placemodule" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:listitem="@layout/place_module" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

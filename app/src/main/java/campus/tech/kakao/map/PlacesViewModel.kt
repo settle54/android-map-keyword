@@ -8,8 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class PlacesViewModel(repository: MapRepository) : ViewModel() {
-    private val repository = repository
+class PlacesViewModel(private val repository: MapRepository) : ViewModel() {
 
     private val _places: MutableLiveData<List<Place>> by lazy {
         MutableLiveData<List<Place>>()
