@@ -21,8 +21,8 @@ class MapRepository(context: Context) {
             val drugStore = Place("약국$i", "서울 강남구 대치동 $i", "약국")
             places.add(cafe)
             places.add(drugStore)
-            localDB.insertPlaces(places)
         }
+        localDB.insertPlaces(places)
     }
 
     fun getAllPlaces(): List<Place> {
@@ -38,4 +38,5 @@ class MapRepository(context: Context) {
         val place = Place(name, address, category)
         localDB.deletePlace(place)
     }
+
 }

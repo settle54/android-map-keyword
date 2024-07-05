@@ -6,12 +6,17 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import campus.tech.kakao.map.model.Place
+import java.sql.SQLException
 
 class PlacesDBHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(CREATE_TABLE)
+        try {
+            db.execSQL(CREATE_TABLE)
+        } catch (e: SQLException) {
+
+        }
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -62,11 +67,12 @@ class PlacesDBHelper(context: Context) :
         db.close()
     }
 
+
     @SuppressLint("Range")
     fun getAllPlaces(): List<Place> {
-        val db = this.readableDatabase
+        val rdb = this.readableDatabase
         val query = "SELECT * FROM $TABLE_NAME"
-        val cursor = db.rawQuery(query, null)
+        val cursor = rdb.rawQuery(query, null)
         val places = mutableListOf<Place>()
         if (cursor.moveToFirst()) {
             do {
@@ -79,7 +85,7 @@ class PlacesDBHelper(context: Context) :
             } while (cursor.moveToNext())
         }
         cursor.close()
-        db.close()
+        rdb.close()
         return places
     }
 
