@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private var stringPrefs: String? = null
     private var searchHistoryList = ArrayList<RecentSearchWord>()
     private lateinit var searchHistoryAdapter: SearchHistoryAdapter
-    private var isInserting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
