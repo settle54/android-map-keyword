@@ -5,21 +5,23 @@ import campus.tech.kakao.map.model.Place
 import campus.tech.kakao.map.viewModel.PlacesDBHelper
 
 class MapRepository(context: Context) {
-    private var localDB: PlacesDBHelper
+    private val localDB: PlacesDBHelper = PlacesDBHelper(context)
 
     init {
-        localDB = PlacesDBHelper(context)
         val dbFile = context.getDatabasePath("${PlacesDBHelper.TABLE_NAME}")
-        if (!dbFile.exists())
+        if (!dbFile.exists()) {
             insertInitialData()
+        }
     }
 
     private fun insertInitialData() {
+        val places = arrayListOf<Place>()
         for (i in 1..30) {
-            val cafe = Place("카페" + i, "서울 성동구 성수동 " + i, "카페")
-            val drugStore = Place("약국" + i, "서울 강남구 대치동 " + i, "약국")
-            localDB.insertPlace(cafe)
-            localDB.insertPlace(drugStore)
+            val cafe = Place("카페$i", "서울 성동구 성수동 $i", "카페")
+            val drugStore = Place("약국$i", "서울 강남구 대치동 $i", "약국")
+            places.add(cafe)
+            places.add(drugStore)
+            localDB.insertPlaces(places)
         }
     }
 

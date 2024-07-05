@@ -7,21 +7,8 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import campus.tech.kakao.map.model.Place
 
-class PlacesDBHelper(context: Context):
+class PlacesDBHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-
-    companion object {
-        private const val DATABASE_NAME = "places.db"
-        private const val DATABASE_VERSION = 1
-
-        const val TABLE_NAME = "places_table"
-        const val NAME = "NAME"
-        const val ADDRESS = "ADDRESS"
-        const val CATEGORY = "CATEGORY"
-
-        private const val CREATE_TABLE = "CREATE TABLE IF NOT EXISTS $TABLE_NAME (" +
-                "$NAME TEXT, $ADDRESS TEXT, $CATEGORY TEXT);"
-    }
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(CREATE_TABLE)
@@ -32,8 +19,7 @@ class PlacesDBHelper(context: Context):
         onCreate(db)
     }
 
-    private fun checkPlaceExist(place: Place): Boolean {
-        val db = this.readableDatabase
+    private fun checkPlaceExist(db: SQLiteDatabase,place: Place): Boolean {
         val projection = arrayOf(NAME)
         val selection = "address = ?"
         val selectionArgs = arrayOf(place.address)
@@ -43,21 +29,36 @@ class PlacesDBHelper(context: Context):
         )
         val count = cursor.count
         cursor.close()
-        db.close()
         return count > 0
     }
 
     fun insertPlace(place: Place) {
-        if (checkPlaceExist(place)) {
+        val db = this.writableDatabase
+        if (checkPlaceExist(db, place)) {
             return
         }
-        val db = this.writableDatabase
         val values = ContentValues().apply {
             put(NAME, place.name)
             put(ADDRESS, place.address)
             put(CATEGORY, place.category)
         }
         db.insert(TABLE_NAME, null, values)
+        db.close()
+    }
+
+    fun insertPlaces(places: List<Place>) {
+        val db = this.writableDatabase
+        for (place in places) {
+            if (checkPlaceExist(db, place)) {
+                continue
+            }
+            val values = ContentValues().apply {
+                put(NAME, place.name)
+                put(ADDRESS, place.address)
+                put(CATEGORY, place.category)
+            }
+            db.insert(TABLE_NAME, null, values)
+        }
         db.close()
     }
 
@@ -86,5 +87,18 @@ class PlacesDBHelper(context: Context):
         val db = this.writableDatabase
         db.delete("$TABLE_NAME", "$NAME=?", arrayOf(place.name))
         db.close()
+    }
+
+    companion object {
+        private const val DATABASE_NAME = "places.db"
+        private const val DATABASE_VERSION = 1
+
+        const val TABLE_NAME = "places_table"
+        const val NAME = "NAME"
+        const val ADDRESS = "ADDRESS"
+        const val CATEGORY = "CATEGORY"
+
+        private const val CREATE_TABLE = "CREATE TABLE IF NOT EXISTS $TABLE_NAME (" +
+                "$NAME TEXT, $ADDRESS TEXT, $CATEGORY TEXT);"
     }
 }
