@@ -39,8 +39,8 @@ class SearchHistoryAdapter(
                 onTextClick(bindingAdapterPosition)
             }
         }
-        fun bind(sh : RecentSearchWord) {
-            binding.data = sh
+        fun bind(rsw : RecentSearchWord) {
+            binding.data = rsw
         }
     }
 }

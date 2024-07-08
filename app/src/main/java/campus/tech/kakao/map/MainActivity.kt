@@ -4,10 +4,10 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import campus.tech.kakao.map.model.RecentSearchWord
 import campus.tech.kakao.map.databinding.ActivityMainBinding
@@ -20,7 +20,6 @@ import com.google.gson.reflect.TypeToken
 class MainActivity : AppCompatActivity() {
     private lateinit var repository: MapRepository
     private lateinit var binding: ActivityMainBinding
-    private lateinit var viewModelFactory: PlacesViewModelFactory
     private lateinit var viewModel: PlacesViewModel
     private lateinit var placesAdapter: PlacesAdapter
 
@@ -40,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         setUpPlacesAdapter()
 
         repository = MapRepository(this)
-        viewModelFactory = PlacesViewModelFactory(repository)
+        val viewModelFactory = PlacesViewModelFactory(repository)
         viewModel = ViewModelProvider(this, viewModelFactory).get(PlacesViewModel::class.java)
 
         setUpViewModelObservers()
@@ -59,11 +58,11 @@ class MainActivity : AppCompatActivity() {
     private fun setUpSearchHistoryAdapter() {
         searchHistoryAdapter = SearchHistoryAdapter(
             searchHistoryList,
-            { position: Int ->
+            onDeleteClick = { position: Int ->
                 delSearch(position)
                 updateSearchHistoryVisibility()
             },
-            { position: Int ->
+            onTextClick = { position: Int ->
                 val itemName = searchHistoryAdapter.getItemName(position)
                 binding.searchInput.setText(itemName)
             })
@@ -90,8 +89,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateSearchHistoryVisibility() {
-        binding.searchHistory.visibility =
-            if (searchHistoryList.isEmpty()) View.GONE else View.VISIBLE
+        binding.searchHistory.isVisible = searchHistoryList.isNotEmpty()
     }
 
     private fun searchHistoryContains(itemName: String): Int {
